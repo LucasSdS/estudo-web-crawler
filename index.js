@@ -53,25 +53,22 @@ app.get('/recipe', async (req, res) => {
 });
 
 app.post('/recipe', async (req, res) => {
-    let rURL = req.body.recipeURL;
-    console.log(`pegou a url ${rURL}`);
-    rURL = recipe.checkURL(rURL);
+    let recipeURL = req.body.recipeURL;
+    console.log(`pegou a url ${recipeURL}`);
+    recipeURL = recipe.checkURL(recipeURL);
 
     try{
-        if(rURL === 'www.tastemade.com.br'){
-            console.log('tastemade');
+        if(recipeURL === 'www.tastemade.com.br'){
             const receita = await recipe.getRecipeTastemade();
-            console.log(typeof(receita));
             res.send(receita);
         }
-        else if(rURL === 'www.tudogostos.com.br'){
-            console.log('caiu aqui');
-            res.send('Outro site');
+        else if(recipeURL === 'www.tudogostoso.com.br'){
+            const receita = await recipe.getRecipeTudoGostoso();
+            res.send(receita);
         }
-        console.log('nenhum');
     }
     catch(error) {
-        console.log("erro");
+        console.log(error);
     }
 
 });

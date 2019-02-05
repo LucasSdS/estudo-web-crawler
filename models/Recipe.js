@@ -57,7 +57,7 @@ function getImage() {
     //Video__Thumbnail-sc-14lx47x-1
 }
 
-// FUNÇÕES REAIS 
+// FUNÇÕES REAIS
 function checkURL(recipeURL) {
     const site = url.parse(recipeURL, true);
     options.uri = recipeURL;
@@ -71,7 +71,6 @@ function getRecipeTastemade() {
         .then(html => {
             //Pega o Título da Receita
             const title = $('h1 > a', html).attr('title');
-            console.log(title);
 
             //Pega os Ingredientes da Receita (array)
             const ingredientsObj = $('.p-ingredient', html).toArray();
@@ -104,8 +103,18 @@ function getRecipeTudoGostoso() {
     return new Promise((resolve, reject) => {
         rp(options)
         .then(html => {
+            //Pega o Título da Receita
+            const title = $('.recipe-title > h1', html).text();
 
-            resolve(valor);
+            //Pega os Ingredientes da Receitas
+            const ingredientsObj = $('.p-ingredient', html).toArray();
+            const ingredients = ingredientsObj.map(el => el.children[0].data);
+
+            //Pega os Passo da Receitas
+            const stepsObj = $('.instructions > ol > li > span', html).toArray();
+            const steps = stepsObj.map(el => el.children[0].data);
+            
+            resolve({title, ingredients, steps});
         })
         .catch(error => reject(error));
     })
@@ -116,7 +125,8 @@ module.exports = {
     getRecipeSteps,
     getImage,
     getRecipeTastemade,
-    checkURL
+    checkURL,
+    getRecipeTudoGostoso
 }
 
 //'https://www.tudogostoso.com.br/receita/458-pao-de-banana.html'
