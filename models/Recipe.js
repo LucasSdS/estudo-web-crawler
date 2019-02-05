@@ -3,10 +3,11 @@ const $ = require('cheerio');
 const request = require('request');
 const fs = require('fs');
 const slugify = require('slugify');
+const url = require('url');
 
 const options = {
     method: 'GET',
-    uri: 'https://www.tastemade.com.br/videos/pave-de-chocolate-e-coco',
+    uri: 'https://www.tastemade.com.br/videos/torta-mousse-com-massa-de-coco',
     headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.81 Safari/537.36',
               'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
               'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
@@ -14,8 +15,11 @@ const options = {
               'Accept-Language': 'en-US,en;q=0.8',
               'Connection': 'keep-alive'}
 }
+//'https://www.tastemade.com.br/videos/pave-de-chocolate-e-coco'
+//https://www.tastemade.com.br/videos/torta-mousse-com-massa-de-coco
+//https://www.tastemade.com.br/videos/picole-trufado-de-doce-de-leite
 
-
+// FUNÇÕES DE TESTE - APENAS ESTUDO
 function getIngredients() {
     return new Promise((resolve, reject) => {
         rp(options)
@@ -53,6 +57,13 @@ function getImage() {
     //Video__Thumbnail-sc-14lx47x-1
 }
 
+// FUNÇÕES REAIS 
+function checkURL(recipeURL) {
+    const site = url.parse(recipeURL, true);
+    options.uri = recipeURL;
+    return site.hostname;
+}
+
 function getRecipeTastemade() {
 
     return new Promise((resolve, reject) => {
@@ -72,27 +83,40 @@ function getRecipeTastemade() {
 
             //Pega o URL da Imagem e salva a Imagem em public/images
             const imageUrl = $('.Video__Thumbnail-sc-14lx47x-1', html).attr('src');
-            const imageName = `${slugify(title, {lower: true})}.png`;
+            const image = `${slugify(title, {lower: true})}.png`;
             request(`http:${imageUrl}`)
-            .pipe(fs.createWriteStream(`./public/images/${imageName}`))
+            .pipe(fs.createWriteStream(`./public/images/${image}`))
             .on('close', () => console.log('bora'));
 
             resolve({
                 title,
                 ingredients,
-                imageName,
+                image,
                 steps
             });
         })
-        .catch(error => console.log(error));
+        .catch(error => reject(error));
     });
+}
+
+function getRecipeTudoGostoso() {
+
+    return new Promise((resolve, reject) => {
+        rp(options)
+        .then(html => {
+
+            resolve(valor);
+        })
+        .catch(error => reject(error));
+    })
 }
 
 module.exports = {
     getIngredients,
     getRecipeSteps,
     getImage,
-    getRecipeTastemade
+    getRecipeTastemade,
+    checkURL
 }
 
 //'https://www.tudogostoso.com.br/receita/458-pao-de-banana.html'
