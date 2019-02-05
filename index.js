@@ -66,6 +66,9 @@ app.post('/recipe', async (req, res) => {
             const receita = await recipe.getRecipeTudoGostoso();
             res.send(receita);
         }
+        else{
+            res.send('404 - NOT FOUND');
+        }
     }
     catch(error) {
         console.log(error);

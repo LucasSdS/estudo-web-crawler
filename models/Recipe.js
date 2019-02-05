@@ -112,9 +112,16 @@ function getRecipeTudoGostoso() {
 
             //Pega os Passo da Receitas
             const stepsObj = $('.instructions > ol > li > span', html).toArray();
-            const steps = stepsObj.map(el => el.children[0].data);
-            
-            resolve({title, ingredients, steps});
+            //const steps = stepsObj.map(el => el.children[0].data);
+
+            //Pega e salva a Imagem da Receita
+            const imageUrl = $('.swiper-slide > img', html).attr('src');
+            const image = `${slugify(title, {lower: true})}.png`;
+            request(imageUrl)
+            .pipe(fs.createWriteStream(`./public/images/${image}`))
+            .on('close', () => console.log('bora'));
+
+            resolve({title, ingredients, image});
         })
         .catch(error => reject(error));
     })
