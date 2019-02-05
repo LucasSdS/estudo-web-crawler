@@ -1,5 +1,8 @@
 const rp = require('request-promise');
 const $ = require('cheerio');
+const request = require('request');
+const fs = require('fs');
+const slugify = require('slugify');
 
 const options = {
     method: 'GET',
@@ -38,12 +41,64 @@ function getRecipeSteps() {
 }
 
 function getImage() {
+    return new Promise((resolve, reject) => {
+        rp(options)
+        .then(html => {
+            const imageUrl = $('.Video__Thumbnail-sc-14lx47x-1', html).attr('src');
+            request(`http:${imageUrl}`).pipe(fs.createWriteStream('')).on('close', () => console.log('bora'));
+            // console.log(imageObj);
+        })
+        .catch(error => reject(error));
+    });
     //Video__Thumbnail-sc-14lx47x-1
+}
+
+function getRecipeTastemade() {
+
+    return new Promise((resolve, reject) => {
+        rp(options)
+        .then(html => {
+            //Pega o Título da Receita
+            const title = $('h1 > a', html).attr('title');
+            console.log(title);
+
+            //Pega os Ingredientes da Receita (array)
+            const ingredientsObj = $('.p-ingredient', html).toArray();
+            const ingredients = ingredientsObj.map(el => el.children[0].data);
+
+            //Pega os Passos da Receita (array);
+            const stepsObj = $('ol.recipe-steps-list > li > p', html).toArray();
+            const steps = stepsObj.map(el => el.children[0].data);
+
+            //Pega o URL da Imagem e salva a Imagem em public/images
+            const imageUrl = $('.Video__Thumbnail-sc-14lx47x-1', html).attr('src');
+            const imageName = `${slugify(title, {lower: true})}.png`;
+            request(`http:${imageUrl}`)
+            .pipe(fs.createWriteStream(`./public/images/${imageName}`))
+            .on('close', () => console.log('bora'));
+
+            resolve({
+                title,
+                ingredients,
+                imageName,
+                steps
+            });
+        })
+        .catch(error => console.log(error));
+    });
 }
 
 module.exports = {
     getIngredients,
-    getRecipeSteps
+    getRecipeSteps,
+    getImage,
+    getRecipeTastemade
 }
 
 //'https://www.tudogostoso.com.br/receita/458-pao-de-banana.html'
+
+// TASTEMADE
+
+// TUDOGOSTOSO
+
+//
