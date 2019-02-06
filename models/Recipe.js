@@ -5,6 +5,8 @@ const fs = require('fs');
 const slugify = require('slugify');
 const url = require('url');
 
+const util = require('util');
+
 const options = {
     method: 'GET',
     uri: 'https://www.tastemade.com.br/videos/torta-mousse-com-massa-de-coco',
@@ -109,10 +111,18 @@ function getRecipeTudoGostoso() {
             //Pega os Ingredientes da Receitas
             const ingredientsObj = $('.p-ingredient', html).toArray();
             const ingredients = ingredientsObj.map(el => el.children[0].data);
+            console.log(typeof(ingredients));
 
             //Pega os Passo da Receitas
             const stepsObj = $('.instructions > ol > li > span', html).toArray();
-            //const steps = stepsObj.map(el => el.children[0].data);
+            const steps = stepsObj.filter( el => {
+                if(el.children[0]){
+                    return true;
+                }else{
+                    return false;
+                }
+            }).map(el => el.children[0].data);
+            console.log(steps);
 
             //Pega e salva a Imagem da Receita
             const imageUrl = $('.swiper-slide > img', html).attr('src');
@@ -121,7 +131,12 @@ function getRecipeTudoGostoso() {
             .pipe(fs.createWriteStream(`./public/images/${image}`))
             .on('close', () => console.log('bora'));
 
-            resolve({title, ingredients, image});
+            resolve({
+                title,
+                ingredients,
+                image,
+                steps
+            });
         })
         .catch(error => reject(error));
     })
